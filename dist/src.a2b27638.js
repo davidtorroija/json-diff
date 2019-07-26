@@ -1205,6 +1205,275 @@ function (_BaseFormatter) {
       context.indent = function (levels) {
         this.indentLevel = (this.indentLevel || 0) + (typeof levels === "undefined" ? 1 : levels);
         this.indentPad = new Array(this.indentLevel + 1).join("  ");
+      };
+
+      context.setIndex = function (index) {
+        this.index = index;
+      };
+    }
+  }, {
+    key: "typeFormattterErrorFormatter",
+    value: function typeFormattterErrorFormatter(context, err) {// context.out(`[ERROR]${err}`);
+    }
+  }, {
+    key: "formatValue",
+    value: function formatValue(context, value) {// context.out(JSON.stringify(value, null, 2));
+    }
+  }, {
+    key: "formatTextDiffString",
+    value: function formatTextDiffString(context, value) {
+      var lines = this.parseTextDiff(value); //console.log("lines", lines);
+
+      context.indent();
+
+      for (var i = 0, l = lines.length; i < l; i++) {
+        var line = lines[i]; // context.out(`${line.location.line},${line.location.chr} `);
+
+        var pieces = line.pieces;
+
+        for (var pieceIndex = 0, piecesLength = pieces.length; pieceIndex < piecesLength; pieceIndex++) {
+          var piece = pieces[pieceIndex]; // context.out(piece.text);
+        }
+      }
+
+      context.indent(-1);
+    }
+  }, {
+    key: "rootBegin",
+    value: function rootBegin(context, type, nodeType) {
+      //console.log("rootBegin ", type, nodeType);
+      if (type === "node") {
+        // context.out(nodeType === "array" ? "[" : "{");
+        context.indent();
+      }
+    }
+  }, {
+    key: "rootEnd",
+    value: function rootEnd(context, type, nodeType) {
+      if (type === "node") {
+        context.indent(-1); // context.out(nodeType === "array" ? "]" : "}");
+      }
+    }
+  }, {
+    key: "nodeBegin",
+    value: function nodeBegin(context, key, leftKey, type, nodeType) {
+      var index = "";
+
+      if (!isInteger(leftKey)) {
+        context.setIndex(null); // context.out(`${leftKey}: `);
+      } else {
+        context.setIndex(leftKey * 1);
+      }
+
+      if (nodeType === "object" && context.index) {
+        index = "\n  \"index\": ".concat(context.index, ",");
+      }
+
+      if (type === "node") {
+        // context.out(nodeType === "array" ? "[" : "{" + index);
+        context.indent();
+      }
+      /*if (type === "added" && !nodeType) {
+        console.log("added", index)
+        // context.out(index)
+      }*/
+
+    }
+  }, {
+    key: "nodeEnd",
+    value: function nodeEnd(context, key, leftKey, type, nodeType, isLast) {
+      if (type === "node") {
+        context.indent(-1); // context.out(nodeType === "array" ? "]," : `}${isLast ? "" : ","}`);
+      }
+    }
+    /* jshint camelcase: false */
+
+    /* eslint-disable camelcase */
+
+  }, {
+    key: "format_unchanged",
+    value: function format_unchanged(context, delta, left) {
+      if (typeof left === "undefined") {
+        return;
+      }
+
+      console.log("unchanged", delta);
+      this.formatValue(context, left);
+    }
+  }, {
+    key: "format_movedestination",
+    value: function format_movedestination(context, delta, left) {
+      if (typeof left === "undefined") {
+        return;
+      }
+
+      this.formatValue(context, left);
+    }
+  }, {
+    key: "format_node",
+    value: function format_node(context, delta, left) {
+      // recurse
+      this.formatDeltaChildren(context, delta, left);
+    }
+  }, {
+    key: "format_added",
+    value: function format_added(context, delta, a) {
+      console.log("added1", delta, context, a, delta[0] === "object");
+
+      if (_typeof(delta[0]) === "object") {
+        delta[0].action = "added";
+
+        if (context.index) {
+          delta[0].index = context.index;
+        }
+      }
+
+      this.formatValue(context, delta[0]); // context.out(",");
+    }
+  }, {
+    key: "format_modified",
+    value: function format_modified(context, delta) {
+      var modifiedObj = {
+        action: "modified",
+        old: delta[0],
+        new: delta[1]
+      };
+      this.formatValue(context, modifiedObj);
+    }
+  }, {
+    key: "format_deleted",
+    value: function format_deleted(context, delta) {
+      //delta[0].action = "deleted";
+      this.formatValue(context, delta[0]);
+    }
+  }, {
+    key: "format_moved",
+    value: function format_moved(context, delta) {//console.log("moved", delta);
+      // context.out(`==> ${delta[1]}`);
+    }
+  }, {
+    key: "format_textdiff",
+    value: function format_textdiff(context, delta) {
+      console.log("text", delta);
+      this.formatTextDiffString(context, delta[0]);
+    }
+  }, {
+    key: "format",
+    value: function format(delta, left) {
+      var context = {};
+      this.prepareContext(context);
+      this.recurse(context, delta, left); //return eval(context.buffer.join(""));
+
+      return context.buffer.join("");
+    }
+  }]);
+
+  return ConsoleFormatter;
+}(_base.default);
+/* eslint-enable camelcase */
+
+/* jshint camelcase: true */
+
+
+var _default = ConsoleFormatter;
+exports.default = _default;
+var defaultInstance;
+
+var format = function format(delta, left) {
+  if (!defaultInstance) {
+    defaultInstance = new ConsoleFormatter();
+  } //console.log("result", pepe);
+
+
+  return defaultInstance.format(delta, left);
+};
+
+exports.format = format;
+
+function log(delta, left) {
+  console.log(format(delta, left));
+}
+},{"./base.js":"src/base.js"}],"src/console copy.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.log = log;
+exports.format = exports.default = void 0;
+
+var _base = _interopRequireDefault(require("./base.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var actions = {
+  added: "added",
+  deleted: "deleted",
+  movedestination: "move dest",
+  moved: "moved",
+  unchanged: "unchanged",
+  error: "error",
+  textDiffLine: "text changed"
+};
+
+function parseInteger(value) {
+  if (value === "") return NaN;
+  var number = Number(value);
+  return Number.isInteger(number) ? number : NaN;
+}
+
+function isInteger(value) {
+  var result = parseInteger(value);
+  return !isNaN(result);
+}
+
+var ConsoleFormatter =
+/*#__PURE__*/
+function (_BaseFormatter) {
+  _inherits(ConsoleFormatter, _BaseFormatter);
+
+  function ConsoleFormatter() {
+    var _this;
+
+    _classCallCheck(this, ConsoleFormatter);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ConsoleFormatter).call(this));
+    _this.includeMoveDestinations = false;
+    return _this;
+  }
+
+  _createClass(ConsoleFormatter, [{
+    key: "prepareContext",
+    value: function prepareContext(context) {
+      _get(_getPrototypeOf(ConsoleFormatter.prototype), "prepareContext", this).call(this, context);
+
+      context.index = [];
+
+      context.indent = function (levels) {
+        this.indentLevel = (this.indentLevel || 0) + (typeof levels === "undefined" ? 1 : levels);
+        this.indentPad = new Array(this.indentLevel + 1).join("  ");
         this.outLine();
       };
 
@@ -6740,7 +7009,318 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
     value: true
   });
 });
-},{"./empty":"node_modules/jsondiffpatch/dist/empty.js"}],"src/index.js":[function(require,module,exports) {
+},{"./empty":"node_modules/jsondiffpatch/dist/empty.js"}],"src/jsons.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.right2 = exports.left2 = void 0;
+var left2 = {
+  data: {
+    linkedMedia: [],
+    intro: {
+      show: false
+    },
+    outro: {},
+    customData: {
+      background: {
+        sizes: {
+          width: 719.969,
+          height: 478.766
+        },
+        datatype: "media",
+        id: "5d28c0265d3adf007dc1dbc9",
+        url: "https://cdn.filestackcontent.com/F2ROjlyhT36whdYaZewW",
+        name: "hvR96AGa4Ak.jpg",
+        provider: "unsplash",
+        type: "image/jpeg",
+        a11y: {},
+        linkedMedia: ["5d28c0265d3adf007dc1dbc9"],
+        imageSize: {
+          width: 4256,
+          height: 2832
+        },
+        poster: {},
+        realDuration: false,
+        thumbnail: null
+      }
+    },
+    items: [{
+      label: "asdasd1",
+      description: "<p>asd</p>",
+      linkedMedia: [],
+      uuid: 1934,
+      x: 5.2780050252163635,
+      y: 9.190293379229102,
+      uploadedMedia: {
+        x: [],
+        y: [],
+        label: [],
+        description: [],
+        feedbackCorrect: [],
+        feedbackHint: [],
+        feedbackIncorrect: []
+      }
+    }]
+  },
+  settings: [{
+    defaultValue: "One at a time",
+    title: "Popup Style",
+    type: "radio",
+    information: 'Choose "Concurrent" to allow multiple popups to be open at once, or limit them to be open one at a time.',
+    values: [{
+      label: "One at a time"
+    }, {
+      label: "Concurrent"
+    }]
+  }, {
+    defaultValue: "Ordered",
+    title: "Hotspot Marker Style",
+    type: "radio",
+    information: "Hotspot markers can be represented by a term label, an icon, or in alphanumeric order.",
+    values: [{
+      label: "Label"
+    }, {
+      label: "Icon",
+      dropdown: {
+        value: "info",
+        type: "icon",
+        content: "far fa-info",
+        values: [{
+          value: "star",
+          type: "icon",
+          content: "far fa-star"
+        }, {
+          value: "locations",
+          type: "icon",
+          content: "far fa-map-marker-alt"
+        }, {
+          value: "info",
+          type: "icon",
+          content: "far fa-info"
+        }, {
+          value: "question",
+          type: "icon",
+          content: "far fa-question"
+        }, {
+          value: "hand-point-up",
+          type: "icon",
+          content: "far fa-hand-point-up"
+        }, {
+          value: "lightbulb",
+          type: "icon",
+          content: "far fa-lightbulb"
+        }, {
+          value: "camera",
+          type: "icon",
+          content: "far fa-camera"
+        }, {
+          value: "search",
+          type: "icon",
+          content: "far fa-search"
+        }]
+      }
+    }, {
+      label: "Ordered",
+      dropdown: {
+        value: "numeral",
+        type: "text",
+        content: "1, 2, 3",
+        values: [{
+          value: "numeral",
+          type: "text",
+          content: "1, 2, 3"
+        }, {
+          value: "alphabetical-upercase",
+          type: "text",
+          content: "A, B, C"
+        }, {
+          value: "alphabetical-lowercase",
+          type: "text",
+          content: "a, b, c"
+        }, {
+          value: "roman-upercase",
+          type: "text",
+          content: "I, II, III"
+        }, {
+          value: "roman-lowercase",
+          type: "text",
+          content: "i, ii, iii"
+        }]
+      }
+    }]
+  }, {
+    type: "switch",
+    hideTitle: true,
+    defaultValue: false,
+    title: "Invisible Hotspots",
+    information: "Invisible hotspots are useful if your background image includes visual hotspot targets that should not be covered by a hotspot marker. Otherwise, making hotspots invisible causes your users to have to hunt for them."
+  }],
+  poster: {}
+};
+exports.left2 = left2;
+var right2 = {
+  data: {
+    linkedMedia: [],
+    intro: {
+      show: false
+    },
+    outro: {},
+    customData: {
+      background: {
+        sizes: {
+          width: 719.969,
+          height: 972.922
+        },
+        datatype: "media",
+        id: "5d2661ec7e615e0081368451",
+        url: "https://cdn.filestackcontent.com/EfhTOPh6TCcH6N7eNABH",
+        name: "WfoJE8gktAI.jpg",
+        provider: "unsplash",
+        type: "image/jpeg",
+        a11y: {},
+        linkedMedia: ["5d2661ec7e615e0081368451"],
+        imageSize: {
+          width: 3694,
+          height: 4992
+        },
+        poster: {},
+        realDuration: false,
+        thumbnail: null
+      }
+    },
+    items: [{
+      label: "peepito 2",
+      description: "<p>asdsad</p>",
+      linkedMedia: [],
+      uuid: 6987,
+      x: 2,
+      y: 2,
+      uploadedMedia: {
+        x: [],
+        y: [],
+        label: [],
+        description: [],
+        feedbackCorrect: [],
+        feedbackHint: [],
+        feedbackIncorrect: []
+      }
+    }, {
+      label: "asdasd1",
+      description: "<p>asd</p>",
+      linkedMedia: [],
+      uuid: 1934,
+      x: 5.2780050252163635,
+      y: 9.190293379229102,
+      uploadedMedia: {
+        x: [],
+        y: [],
+        label: [],
+        description: [],
+        feedbackCorrect: [],
+        feedbackHint: [],
+        feedbackIncorrect: []
+      }
+    }]
+  },
+  settings: [{
+    defaultValue: "One at a time",
+    title: "Popup Style",
+    type: "radio",
+    information: 'Choose "Concurrent" to allow multiple popups to be open at once, or limit them to be open one at a time.',
+    values: [{
+      label: "One at a time"
+    }, {
+      label: "Concurrent"
+    }]
+  }, {
+    defaultValue: "Icon",
+    title: "Hotspot Marker Style",
+    type: "radio",
+    information: "Hotspot markers can be represented by a term label, an icon, or in alphanumeric order.",
+    values: [{
+      label: "Label"
+    }, {
+      label: "Icon",
+      dropdown: {
+        value: "info",
+        type: "icon",
+        content: "far fa-info",
+        values: [{
+          value: "star",
+          type: "icon",
+          content: "far fa-star"
+        }, {
+          value: "locations",
+          type: "icon",
+          content: "far fa-map-marker-alt"
+        }, {
+          value: "info",
+          type: "icon",
+          content: "far fa-info"
+        }, {
+          value: "question",
+          type: "icon",
+          content: "far fa-question"
+        }, {
+          value: "hand-point-up",
+          type: "icon",
+          content: "far fa-hand-point-up"
+        }, {
+          value: "lightbulb",
+          type: "icon",
+          content: "far fa-lightbulb"
+        }, {
+          value: "camera",
+          type: "icon",
+          content: "far fa-camera"
+        }, {
+          value: "search",
+          type: "icon",
+          content: "far fa-search"
+        }]
+      }
+    }, {
+      label: "Ordered",
+      dropdown: {
+        value: "numeral",
+        type: "text",
+        content: "1, 2, 3",
+        values: [{
+          value: "numeral",
+          type: "text",
+          content: "1, 2, 3"
+        }, {
+          value: "alphabetical-upercase",
+          type: "text",
+          content: "A, B, C"
+        }, {
+          value: "alphabetical-lowercase",
+          type: "text",
+          content: "a, b, c"
+        }, {
+          value: "roman-upercase",
+          type: "text",
+          content: "I, II, III"
+        }, {
+          value: "roman-lowercase",
+          type: "text",
+          content: "i, ii, iii"
+        }]
+      }
+    }]
+  }, {
+    type: "switch",
+    hideTitle: true,
+    defaultValue: true,
+    title: "Invisible Hotspots",
+    information: "Invisible hotspots are useful if your background image includes visual hotspot targets that should not be covered by a hotspot marker. Otherwise, making hotspots invisible causes your users to have to hunt for them."
+  }],
+  poster: {}
+};
+exports.right2 = right2;
+},{}],"src/index.js":[function(require,module,exports) {
 "use strict";
 
 require("./styles.css");
@@ -6752,6 +7332,10 @@ var _formatter = _interopRequireDefault(require("./formatter.js"));
 var _textFormatter = _interopRequireDefault(require("./text-formatter.js"));
 
 var _console = _interopRequireDefault(require("./console.js"));
+
+var _consoleCopy = _interopRequireDefault(require("./console copy.js"));
+
+var _jsons = require("./jsons");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -6776,12 +7360,28 @@ var delta = jsondiffpatch.create({
     return !["linkedMedia", "imageSize", "sizes"].includes(name);
   }
 }).diff(_jsonHt.left.data, _jsonHt.right.data);
+var delta2 = jsondiffpatch.create({
+  arrays: {
+    // default true, detect items moved inside the array (otherwise they will be registered as remove+add)
+    detectMove: false,
+    // default false, the value of items moved is not included in deltas
+    includeValueOnMove: false
+  },
+  propertyFilter: function propertyFilter(name, context) {
+    /*
+     this optional function can be specified to ignore object properties (eg. volatile data)
+      name: property name, present in either context.left or context.right objects
+      context: the diff context (has context.left and context.right objects)
+    */
+    return !["linkedMedia", "imageSize", "sizes"].includes(name);
+  }
+}).diff(_jsons.left2, _jsons.right2);
 window.f = _formatter.default; //console.log("diffpatch", delta, new formatter().format(delta));
 //console.log("text", delta, new textFormatter().format(delta));
 //console.log("otro", delta, jsondiffpatch.formatters.console.format(delta));
 //console.log("xxx", delta, new jsonFormatter().format(delta));
 
-console.log("xxx12", delta, new _console.default().format(delta)); //console.log("xxx12", delta, eval(new jsonFormatter().format(delta)));
+console.log("xxx12", delta, new _consoleCopy.default().format(delta2)); //console.log("xxx12", delta, eval(new jsonFormatter().format(delta)));
 //console.log("a", eval(new jsonFormatter().format(delta)));
 
 console.log("a2", new _console.default().format(delta));
@@ -6797,7 +7397,7 @@ for (var i = 0; i < resultArr.length; i++) {
   li.appendChild(text);
   select.insertBefore(li, select.childNodes[i]);
 }
-},{"./styles.css":"src/styles.css","./json-ht":"src/json-ht.js","./formatter.js":"src/formatter.js","./text-formatter.js":"src/text-formatter.js","./console.js":"src/console.js","jsondiffpatch":"node_modules/jsondiffpatch/dist/jsondiffpatch.umd.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./styles.css":"src/styles.css","./json-ht":"src/json-ht.js","./formatter.js":"src/formatter.js","./text-formatter.js":"src/text-formatter.js","./console.js":"src/console.js","./console copy.js":"src/console copy.js","jsondiffpatch":"node_modules/jsondiffpatch/dist/jsondiffpatch.umd.js","./jsons":"src/jsons.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

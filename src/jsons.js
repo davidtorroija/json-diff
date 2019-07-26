@@ -1,4 +1,4 @@
-const left = {
+const left2 = {
   data: {
     linkedMedia: [],
     intro: { show: false },
@@ -120,7 +120,7 @@ const left = {
   poster: {}
 };
 
-const right = {
+const right2 = {
   data: {
     linkedMedia: [],
     intro: { show: false },
@@ -259,4 +259,4 @@ const right = {
   poster: {}
 };
 
-export { left, right };
+export { left2, right2 };

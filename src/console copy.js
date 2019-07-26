@@ -33,6 +33,17 @@ class ConsoleFormatter extends BaseFormatter {
       this.indentLevel =
         (this.indentLevel || 0) + (typeof levels === "undefined" ? 1 : levels);
       this.indentPad = new Array(this.indentLevel + 1).join("  ");
+      this.outLine();
+    };
+    context.outLine = function() {
+      this.buffer.push(`\n${this.indentPad || ""}`);
+    };
+    context.out = function(...args) {
+      for (let i = 0, l = args.length; i < l; i++) {
+        let lines = args[i].split("\n");
+        let text = lines.join(`\n${this.indentPad || ""}`);
+        this.buffer.push(text);
+      }
     };
     context.setIndex = function(index) {
       this.index = index;
@@ -40,11 +51,13 @@ class ConsoleFormatter extends BaseFormatter {
   }
 
   typeFormattterErrorFormatter(context, err) {
-    // context.out(`[ERROR]${err}`);
+    //context.pushColor(colors.error);
+    context.out(`[ERROR]${err}`);
+    //context.popColor();
   }
 
   formatValue(context, value) {
-    // context.out(JSON.stringify(value, null, 2));
+    context.out(JSON.stringify(value, null, 2));
   }
 
   formatTextDiffString(context, value) {
@@ -53,7 +66,9 @@ class ConsoleFormatter extends BaseFormatter {
     context.indent();
     for (let i = 0, l = lines.length; i < l; i++) {
       let line = lines[i];
-      // context.out(`${line.location.line},${line.location.chr} `);
+      //context.pushColor(colors.textDiffLine);
+      context.out(`${line.location.line},${line.location.chr} `);
+      //context.popColor();2
       let pieces = line.pieces;
       for (
         let pieceIndex = 0, piecesLength = pieces.length;
@@ -61,16 +76,22 @@ class ConsoleFormatter extends BaseFormatter {
         pieceIndex++
       ) {
         let piece = pieces[pieceIndex];
-        // context.out(piece.text);
+        //context.pushColor(colors[piece.type]);
+        context.out(piece.text);
+        //context.popColor();
+      }
+      if (i < l - 1) {
+        context.outLine();
       }
     }
     context.indent(-1);
   }
 
   rootBegin(context, type, nodeType) {
+    //context.pushColor(colors[type]);
     //console.log("rootBegin ", type, nodeType);
     if (type === "node") {
-      // context.out(nodeType === "array" ? "[" : "{");
+      context.out(nodeType === "array" ? "[" : "{");
       context.indent();
     }
   }
@@ -78,15 +99,16 @@ class ConsoleFormatter extends BaseFormatter {
   rootEnd(context, type, nodeType) {
     if (type === "node") {
       context.indent(-1);
-      // context.out(nodeType === "array" ? "]" : "}");
+      context.out(nodeType === "array" ? "]" : "}");
     }
   }
 
   nodeBegin(context, key, leftKey, type, nodeType) {
+    //context.pushColor(colors[type]);
     let index = "";
     if (!isInteger(leftKey)) {
       context.setIndex(null);
-      // context.out(`${leftKey}: `);
+      context.out(`${leftKey}: `);
     } else {
       context.setIndex(leftKey * 1);
     }
@@ -96,20 +118,24 @@ class ConsoleFormatter extends BaseFormatter {
     }
 
     if (type === "node") {
-      // context.out(nodeType === "array" ? "[" : "{" + index);
+      context.out(nodeType === "array" ? "[" : "{" + index);
       context.indent();
     }
     /*if (type === "added" && !nodeType) {
       console.log("added", index)
-      // context.out(index)
+      context.out(index)
     }*/
   }
 
   nodeEnd(context, key, leftKey, type, nodeType, isLast) {
     if (type === "node") {
       context.indent(-1);
-      // context.out(nodeType === "array" ? "]," : `}${isLast ? "" : ","}`);
+      context.out(nodeType === "array" ? "]," : `}${isLast ? "" : ","}`);
     }
+    if (!isLast) {
+      context.outLine();
+    }
+    //context.popColor();
   }
 
   /* jshint camelcase: false */
@@ -144,16 +170,31 @@ class ConsoleFormatter extends BaseFormatter {
       }
     }
     this.formatValue(context, delta[0]);
-    // context.out(",");
+    context.out(",");
   }
 
   format_modified(context, delta) {
+    //context.pushColor(colors.deleted);
+    //console.log(delta);
+
+    //context.out(`{
+    //  "action": "modified",
+    //  "old": `);
+
     const modifiedObj = {
       action: "modified",
       old: delta[0],
       new: delta[1]
     };
     this.formatValue(context, modifiedObj);
+    context.out(",");
+    //context.popColor();
+    //context.out(`,
+    //  "new": `);
+    //context.pushColor(colors.added);
+    //this.formatValue(context, delta[1]);
+    //context.out(`
+    //},`);
   }
 
   format_deleted(context, delta) {
@@ -163,7 +204,7 @@ class ConsoleFormatter extends BaseFormatter {
 
   format_moved(context, delta) {
     //console.log("moved", delta);
-    // context.out(`==> ${delta[1]}`);
+    context.out(`==> ${delta[1]}`);
   }
 
   format_textdiff(context, delta) {

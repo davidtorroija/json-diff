@@ -94,20 +94,21 @@ class ConsoleFormatter extends BaseFormatter {
             context.parentProperty,
             context.parent[context.parentProperty]
         );
+        const parentArr = context.parent[context.parentProperty];
 
         if (!isInteger(leftKey)) {
             
-            if (!nodeType && Array.isArray(context.parent[context.parentProperty])) {
-                context.parent = context.parent[context.parentProperty][context.index];
+            if (!nodeType && Array.isArray(parentArr)) {
+                context.parent = parentArr[context.index];
                 context.parentProperty = leftKey;
             }
             context.setIndex(null);
         } else {
             context.setIndex(leftKey * 1);
             let newObj = { index: context.index };
-            if (Array.isArray(context.parent[context.parentProperty])) {
-                context.parent[context.parentProperty].push(newObj);
-                context.setIndex(context.parent[context.parentProperty].indexOf(newObj));
+            if (Array.isArray(parentArr)) {
+                parentArr.push(newObj);
+                context.setIndex(parentArr.indexOf(newObj));
             }
         }
 
@@ -116,6 +117,8 @@ class ConsoleFormatter extends BaseFormatter {
         if (nodeType === "array") {
             context.parentProperty = leftKey;
             context.parent[leftKey] = [];
+        } else {
+            context.parentProperty = leftKey;
         }
     }
 
@@ -184,11 +187,6 @@ class ConsoleFormatter extends BaseFormatter {
                 new: delta[1]
             });
         }
-
-        // if (Array.isArray(context.parent[context.parentProperty])) {
-        //     return context.parent[context.parentProperty].push(modifiedObj);
-        // }
-        // context.parent[context.parentProperty] = modifiedObj;
     }
 
     format_deleted(context, delta) {

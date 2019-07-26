@@ -6,25 +6,26 @@ const left = {
     },
     {
       pepe: "1"
+    },
+    {
+      pepe: "3"
     }
-
     ]
   }
 };
 
 const right = {
   data: {
-    //unStringAdded: "string testing",
-    //unObjectAdded: {objectPepe: {hola: "nesting"}},
     stringYaEstaba: "string Modified",
     items: [{
+      pepe: "3"
+    },
+      {
       pepe: "1"
     },
     {
       pepe: "2"
-    }
-
-    ]
+    }]
   }
 };
 

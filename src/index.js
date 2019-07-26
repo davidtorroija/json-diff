@@ -37,12 +37,12 @@ const delta = jsondiffpatch
 
   const delta2 = jsondiffpatch
   .create({
-    arrays: {
-      // default true, detect items moved inside the array (otherwise they will be registered as remove+add)
-      detectMove: false,
-      // default false, the value of items moved is not included in deltas
-      includeValueOnMove: false
-    },
+    // arrays: {
+    //   // default true, detect items moved inside the array (otherwise they will be registered as remove+add)
+    //   detectMove: false,
+    //   // default false, the value of items moved is not included in deltas
+    //   includeValueOnMove: false
+    // },
     propertyFilter: function(name, context) {
       /*
        this optional function can be specified to ignore object properties (eg. volatile data)
@@ -59,10 +59,10 @@ window.f = formatter;
 //console.log("text", delta, new textFormatter().format(delta));
 //console.log("otro", delta, jsondiffpatch.formatters.console.format(delta));
 //console.log("xxx", delta, new jsonFormatter().format(delta));
-console.log("xxx12", delta, new pepeFormatter().format(delta2));
+//console.log("xxx12", delta, new pepeFormatter().format(delta2));
 //console.log("xxx12", delta, eval(new jsonFormatter().format(delta)));
 //console.log("a", eval(new jsonFormatter().format(delta)));
-console.log("a2", new jsonFormatter().format(delta));
+console.log("a2", delta,new jsonFormatter().format(delta));
 const resultArr = new textFormatter(delta).format(delta);
 const select = document.getElementById("list");
 

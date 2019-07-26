@@ -68,7 +68,7 @@ test("expect added object has action and the same object", () => {
     expect(jsonResult).toEqual(expectedResult);
 });
 
-test.only("expect modified object has action and the same object", () => {
+test("expect modified object has action and the same object", () => {
     const left = {
         data: {
             objModified: {
@@ -83,7 +83,7 @@ test.only("expect modified object has action and the same object", () => {
         data: {
             objModified: {
                 objectPepe: {
-                    hola: "nesting"
+                    hola: "nesting1"
                 }
             }
         }
@@ -91,7 +91,11 @@ test.only("expect modified object has action and the same object", () => {
 
     const delta = jsondiffpatch.diff(left, right);
     let jsonResult = new jsonFormatter().format(delta);
-    expect(jsonResult).toEqual();
+    expect(jsonResult).toEqual({
+        "action": "modified",
+        "new": "nesting1",
+        "old": "nesting"
+    });
 });
 
 test.skip("expect empty accordion modified some data in the first layer", () => {

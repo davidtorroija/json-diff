@@ -1370,7 +1370,7 @@ function (_BaseFormatter) {
       this.recurse(context, delta, left); //return eval(context.buffer.join(""));
 
       console.log("context.resu", context);
-      return context.buffer.join("");
+      return context.objResult;
     }
   }]);
 

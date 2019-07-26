@@ -17,6 +17,19 @@ const left = {
 
 const delta = jsondiffpatch.diff(left, right);
 
-test('adds 1 + 2 to equal 3', () => {
-    expect(delta).toBe(3);
-  });
+test('expect added property to be added in diff', () => {
+    const left = {
+        data: {
+        }
+      };
+      
+      const right = {
+        data: {
+          unStringAdded: "string testing",
+        }
+      };
+    
+    const delta = jsondiffpatch.diff(left, right);
+    let jsonResult = new jsonFormatter().format(delta);
+    expect(jsonResult).toBe({ unStringAdded: {}});
+});

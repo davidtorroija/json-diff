@@ -92,9 +92,15 @@ test("expect modified object has action and the same object", () => {
     const delta = jsondiffpatch.diff(left, right);
     let jsonResult = new jsonFormatter().format(delta);
     expect(jsonResult).toEqual({
-        "action": "modified",
-        "new": "nesting1",
-        "old": "nesting"
+            objModified: {
+                objectPepe: {
+                    hola: {
+                        action: "modified",
+                        old: "nesting",
+                        new: "nesting1"
+                    }
+                }
+            }
     });
 });
 

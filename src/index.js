@@ -55,14 +55,7 @@ const delta = jsondiffpatch
   .diff(left2, right2);
 window.f = formatter;
 
-//console.log("diffpatch", delta, new formatter().format(delta));
-//console.log("text", delta, new textFormatter().format(delta));
-//console.log("otro", delta, jsondiffpatch.formatters.console.format(delta));
-//console.log("xxx", delta, new jsonFormatter().format(delta));
-//console.log("xxx12", delta, new pepeFormatter().format(delta2));
-//console.log("xxx12", delta, eval(new jsonFormatter().format(delta)));
-//console.log("a", eval(new jsonFormatter().format(delta)));
-console.log("a2", delta,new jsonFormatter().format(delta));
+console.log("xxx12", delta, new pepeFormatter().format(delta2));
 const resultArr = new textFormatter(delta).format(delta);
 const select = document.getElementById("list");
 

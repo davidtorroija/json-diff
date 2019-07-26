@@ -108,7 +108,7 @@ class ConsoleFormatter extends BaseFormatter {
     let index = "";
     if (!isInteger(leftKey)) {
       context.setIndex(null);
-      context.out(`${leftKey}: `);
+      context.out(`"${leftKey}": `);
     } else {
       context.setIndex(leftKey * 1);
     }
@@ -121,21 +121,19 @@ class ConsoleFormatter extends BaseFormatter {
       context.out(nodeType === "array" ? "[" : "{" + index);
       context.indent();
     }
-    /*if (type === "added" && !nodeType) {
-      console.log("added", index)
-      context.out(index)
-    }*/
   }
 
   nodeEnd(context, key, leftKey, type, nodeType, isLast) {
+    console.log("node end", key, leftKey, type, nodeType, isLast)
     if (type === "node") {
       context.indent(-1);
-      context.out(nodeType === "array" ? "]," : `}${isLast ? "" : ","}`);
+      const comma = isLast ? "" : ",";
+      context.out(nodeType === "array" ? `]${comma}` : `}${comma}`);
+    } else {
+      if (isLast) {
+        console.log("pop", context.buffer.pop())
+      }
     }
-    if (!isLast) {
-      context.outLine();
-    }
-    //context.popColor();
   }
 
   /* jshint camelcase: false */
@@ -175,12 +173,6 @@ class ConsoleFormatter extends BaseFormatter {
 
   format_modified(context, delta) {
     //context.pushColor(colors.deleted);
-    //console.log(delta);
-
-    //context.out(`{
-    //  "action": "modified",
-    //  "old": `);
-
     const modifiedObj = {
       action: "modified",
       old: delta[0],
@@ -188,13 +180,6 @@ class ConsoleFormatter extends BaseFormatter {
     };
     this.formatValue(context, modifiedObj);
     context.out(",");
-    //context.popColor();
-    //context.out(`,
-    //  "new": `);
-    //context.pushColor(colors.added);
-    //this.formatValue(context, delta[1]);
-    //context.out(`
-    //},`);
   }
 
   format_deleted(context, delta) {
@@ -217,7 +202,9 @@ class ConsoleFormatter extends BaseFormatter {
     this.prepareContext(context);
     this.recurse(context, delta, left);
     //return eval(context.buffer.join(""));
-    return context.buffer.join("");
+    return JSON.parse(context.buffer.join(""));
+
+    // return context.buffer.join("");
   }
 }
 

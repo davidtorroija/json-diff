@@ -11,7 +11,7 @@ document.getElementById("app").innerHTML = `
   </ul>
 </div> 
 `;
-const delta2 = jsondiffpatch
+const delta = jsondiffpatch
 .create({
   // arrays: {
   //   // default true, detect items moved inside the array (otherwise they will be registered as remove+add)
@@ -30,16 +30,16 @@ const delta2 = jsondiffpatch
 })
 .diff(left2, right2);
 
-console.log("xxx12", delta, new jsonFormatter().format(delta2));
-const resultArr = new textFormatter(delta).format(delta);
-const select = document.getElementById("list");
+console.log("xxx12", delta, new jsonFormatter().format(delta));
+// const resultArr = new textFormatter(delta).format(delta);
+// const select = document.getElementById("list");
 
-for (var i = 0; i < resultArr.length; i++) {
-  var li = document.createElement("li");
-  var span = document.createElement("span");
-  span.appendChild(document.createTextNode(i));
-  li.appendChild(span);
-  var text = document.createTextNode(resultArr[i]);
-  li.appendChild(text);
-  select.insertBefore(li, select.childNodes[i]);
-}
+// for (var i = 0; i < resultArr.length; i++) {
+//   var li = document.createElement("li");
+//   var span = document.createElement("span");
+//   span.appendChild(document.createTextNode(i));
+//   li.appendChild(span);
+//   var text = document.createTextNode(resultArr[i]);
+//   li.appendChild(text);
+//   select.insertBefore(li, select.childNodes[i]);
+// }

@@ -1,4 +1,4 @@
-import jsonFormatter from "./console.js";
+import jsonFormatter from "./jsonFormatter";
 let jsondiffpatch = require("jsondiffpatch");
 
 const left = {

@@ -1,10 +1,14 @@
 const left = {
-  data: {}
+  data: {
+    stringYaEstaba: "string"
+  }
 };
 
 const right = {
   data: {
-    i: 2
+    unStringAdded: "string testing",
+    unObjectAdded: {objectPepe: {hola: "nesting"}},
+    stringYaEstaba: "string Modified"
   }
 };
 

@@ -162,7 +162,7 @@ class ConsoleFormatter extends BaseFormatter {
   }
 
   format_added(context, delta, a) {
-    console.log("added1", delta, context, a, delta[0] === "object");
+    // console.log("added1", delta, context, a, delta[0] === "object");
     if (typeof delta[0] === "object") {
       delta[0].action = "added";
       if (context.index) {
@@ -208,7 +208,7 @@ class ConsoleFormatter extends BaseFormatter {
   }
 
   format_textdiff(context, delta) {
-    console.log("text", delta);
+    // console.log("text", delta);
     this.formatTextDiffString(context, delta[0]);
   }
 

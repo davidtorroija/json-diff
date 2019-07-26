@@ -28,15 +28,17 @@ class ConsoleFormatter extends BaseFormatter {
 
   prepareContext(context) {
     super.prepareContext(context);
-    context.index = [];
-    context.indent = function(levels) {
-      this.indentLevel =
-        (this.indentLevel || 0) + (typeof levels === "undefined" ? 1 : levels);
-      this.indentPad = new Array(this.indentLevel + 1).join("  ");
-    };
+    context.index = null;
+    context.parent = null;
+    context.objResult = null;
+    context.parentProperty = null;
     context.setIndex = function(index) {
       this.index = index;
     };
+    context.setParent = function(parent) {
+      this.parent = parent;
+    };
+    
   }
 
   typeFormattterErrorFormatter(context, err) {
@@ -50,7 +52,6 @@ class ConsoleFormatter extends BaseFormatter {
   formatTextDiffString(context, value) {
     let lines = this.parseTextDiff(value);
     //console.log("lines", lines);
-    context.indent();
     for (let i = 0, l = lines.length; i < l; i++) {
       let line = lines[i];
       // context.out(`${line.location.line},${line.location.chr} `);
@@ -64,28 +65,29 @@ class ConsoleFormatter extends BaseFormatter {
         // context.out(piece.text);
       }
     }
-    context.indent(-1);
   }
 
   rootBegin(context, type, nodeType) {
     //console.log("rootBegin ", type, nodeType);
     if (type === "node") {
+      context.objResult = nodeType === "array" ? [] : {}
+      context.setParent(context.objResult);
       // context.out(nodeType === "array" ? "[" : "{");
-      context.indent();
     }
   }
 
   rootEnd(context, type, nodeType) {
     if (type === "node") {
-      context.indent(-1);
       // context.out(nodeType === "array" ? "]" : "}");
     }
   }
 
   nodeBegin(context, key, leftKey, type, nodeType) {
     let index = "";
+    console.log("nodeBegin", key, leftKey, type, nodeType)
     if (!isInteger(leftKey)) {
       context.setIndex(null);
+      context.parentProperty = leftKey;
       // context.out(`${leftKey}: `);
     } else {
       context.setIndex(leftKey * 1);
@@ -97,7 +99,6 @@ class ConsoleFormatter extends BaseFormatter {
 
     if (type === "node") {
       // context.out(nodeType === "array" ? "[" : "{" + index);
-      context.indent();
     }
     /*if (type === "added" && !nodeType) {
       console.log("added", index)
@@ -107,7 +108,6 @@ class ConsoleFormatter extends BaseFormatter {
 
   nodeEnd(context, key, leftKey, type, nodeType, isLast) {
     if (type === "node") {
-      context.indent(-1);
       // context.out(nodeType === "array" ? "]," : `}${isLast ? "" : ","}`);
     }
   }
@@ -136,14 +136,16 @@ class ConsoleFormatter extends BaseFormatter {
   }
 
   format_added(context, delta, a) {
-    console.log("added1", delta, context, a, delta[0] === "object");
+    console.log("added1", context.parentProperty, context.parent, context.parent[context.parentProperty], delta[0]);
     if (typeof delta[0] === "object") {
       delta[0].action = "added";
       if (context.index) {
         delta[0].index = context.index;
       }
     }
-    this.formatValue(context, delta[0]);
+    context.parent[context.parentProperty] = delta[0]
+
+    //this.formatValue(context, delta[0]);
     // context.out(",");
   }
 
@@ -176,6 +178,7 @@ class ConsoleFormatter extends BaseFormatter {
     this.prepareContext(context);
     this.recurse(context, delta, left);
     //return eval(context.buffer.join(""));
+    console.log("context.resu", context)
     return context.buffer.join("");
   }
 }

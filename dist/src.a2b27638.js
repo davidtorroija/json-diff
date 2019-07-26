@@ -6784,7 +6784,7 @@ window.f = _formatter.default; //console.log("diffpatch", delta, new formatter()
 console.log("xxx12", delta, new _console.default().format(delta)); //console.log("xxx12", delta, eval(new jsonFormatter().format(delta)));
 //console.log("a", eval(new jsonFormatter().format(delta)));
 
-console.log("a2", eval(new _console.default().format(delta)));
+console.log("a2", new _console.default().format(delta));
 var resultArr = new _textFormatter.default(delta).format(delta);
 var select = document.getElementById("list");
 

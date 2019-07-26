@@ -41,7 +41,7 @@ window.f = formatter;
 console.log("xxx12", delta, new jsonFormatter().format(delta));
 //console.log("xxx12", delta, eval(new jsonFormatter().format(delta)));
 //console.log("a", eval(new jsonFormatter().format(delta)));
-console.log("a2", eval(new jsonFormatter().format(delta)));
+console.log("a2", new jsonFormatter().format(delta));
 const resultArr = new textFormatter(delta).format(delta);
 const select = document.getElementById("list");
 

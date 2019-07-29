@@ -201,8 +201,9 @@ class ConsoleFormatter extends BaseFormatter {
     let context = {};
     this.prepareContext(context);
     this.recurse(context, delta, left);
-    //return eval(context.buffer.join(""));
-    return JSON.parse(context.buffer.join(""));
+    const result = context.buffer.join("")
+    console.log("result", result)
+    return JSON.parse(result === "" ? "{}" : result);
 
     // return context.buffer.join("");
   }

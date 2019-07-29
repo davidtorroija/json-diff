@@ -1,21 +1,35 @@
 import jsonFormatter from "./jsonFormatter";
 let jsondiffpatch = require("jsondiffpatch");
+let options = {
+    propertyFilter: function(name, context) {
+        return !["linkedMedia", "imageSize", "sizes", "uploadedMedia"].includes(name);
+        }
+}
 
-const left = {
-    data: {
-        stringYaEstaba: "string"
-    }
-};
+test("expect already have property should ignored", () => {
+    const left = {
+        data: {
+            yaEstaba: "string testing"
+        }
+    };
 
-const right = {
-    data: {
-        unStringAdded: "string testing",
-        unObjectAdded: { objectPepe: { hola: "nesting" } },
-        stringYaEstaba: "string Modified"
-    }
-};
+    const right = {
+        data: {
+            yaEstaba: "string testing"
+        }
+    };
 
-const delta = jsondiffpatch.diff(left, right);
+    const delta = jsondiffpatch.diff(left, right);
+    let jsonResult = new jsonFormatter().format(delta);
+    let expectedResult = {
+        unStringAdded: {
+            action: "added",
+            value: "string testing"
+        }
+    };
+    //console.log("expectedResult",jsonResult)
+    expect(jsonResult).toEqual({});
+});
 
 test.skip("expect added property to be added in diff", () => {
     const left = {
@@ -105,7 +119,7 @@ test("expect 'modified' object has action and new value", () => {
     });
 });
 
-test.skip("expect empty accordion modified some data in the first layer", () => {
+test("expect modified only first layer and ignore ignored properties in options", () => {
     const left = {
         data: {
             linkedMedia: [],
@@ -146,20 +160,24 @@ test.skip("expect empty accordion modified some data in the first layer", () => 
             ]
         }
     };
-
-    const delta = jsondiffpatch.create({
-        propertyFilter: function(name, context) {
-            return !["linkedMedia", "imageSize", "sizes", "uploadedMedia"].includes(name);
-          }
-    }).diff(left, right);
-    let jsonResult = new jsonFormatter().format(delta);
+    //options ignore "linkedMedia", "imageSize", "sizes", "uploadedMedia" properties
+    const delta = jsondiffpatch.create(options).diff(left, right);
+    let jsonResult = new jsonFormatter().format(delta).data;
     let expectedResult = {
-        unObjectAdded: {
-            action: "added",
-            objectPepe: {
-                hola: "nesting"
+        items: [
+            {
+                "title": {
+                    "action": "modified",
+                    "new": "pepito",
+                    "old": "",
+                },
+                "content": {
+                    "action": "modified",
+                    "new": "<p><strong>loco </strong></p><p><br></p>",
+                    "old": "",
+                },
             }
-        }
+        ]
     };
     expect(jsonResult).toEqual(expectedResult);
 });

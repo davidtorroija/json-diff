@@ -150,6 +150,7 @@ const right2 = {
         uuid: 6987,
         x: 2,
         y: 2,
+        pepe: "new",
         uploadedMedia: {
           x: [],
           y: [],

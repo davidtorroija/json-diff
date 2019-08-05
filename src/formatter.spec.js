@@ -181,3 +181,56 @@ test("expect modified only first layer and ignore ignored properties in options"
     };
     expect(jsonResult).toEqual(expectedResult);
 });
+
+test("should display changes in human friendly way", () => {
+    const left = {
+        data: {
+            items: [
+                {
+                    title: "",
+                    content: "",
+                    linkedMedia: [],
+                    uuid: 5668
+                }
+            ]
+        }
+    };
+
+    const right = {
+        data: {
+            items: [
+                {
+                    title: "pepito",
+                    content: "<p><strong>loco </strong></p><p><br></p>",
+                    linkedMedia: [],
+                    uuid: 5668,
+                }
+            ]
+        }
+    };
+    //options ignore "linkedMedia", "imageSize", "sizes", "uploadedMedia" properties
+    const delta = jsondiffpatch.create(options).diff(left, right);
+    let jsonResult = new jsonFormatter().format(delta).data;
+    let expectedResult = {
+        items: [
+            {
+                "title": {
+                    "action": "modified",
+                    "new": "pepito",
+                    "old": "",
+                },
+                "content": {
+                    "action": "modified",
+                    "new": "<p><strong>loco </strong></p><p><br></p>",
+                    "old": "",
+                },
+            }
+        ]
+    };
+    expect(jsonResult).toEqual(expectedResult);
+    expect(jsonResult.humanly()).toEqual([
+        "Layer 0 modified:"
+    ]);
+    
+
+});
